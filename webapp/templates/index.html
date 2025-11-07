@@ -400,9 +400,14 @@
                                             <i class="bi bi-calendar"></i> Sort by Start Date
                                         </button>
                                     </div>
-                                    <button id="export-csv-btn" class="btn btn-sm btn-outline-primary" disabled>
-                                        <i class="bi bi-download"></i> Export CSV
-                                    </button>
+                                    <div class="btn-group" role="group">
+                                        <button id="export-timeline-png-btn" class="btn btn-sm btn-outline-primary" disabled>
+                                            <i class="bi bi-image"></i> Export PNG
+                                        </button>
+                                        <button id="export-csv-btn" class="btn btn-sm btn-outline-primary" disabled>
+                                            <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                                        </button>
+                                    </div>
                                 </div>
                                 <div id="timeline-container">
                                     <p class="text-muted">Run the model to see project timeline</p>
@@ -441,6 +446,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <script>
         let currentPortfolio = null;
         let projectsData = [];
@@ -849,6 +855,7 @@
                     cachedTimelineProjects = null;
                     document.getElementById('sort-by-program-btn').disabled = true;
                     document.getElementById('sort-by-start-btn').disabled = true;
+                    document.getElementById('export-timeline-png-btn').disabled = true;
                     return;
                 }
 
@@ -857,6 +864,7 @@
 
                 // Enable buttons
                 document.getElementById('export-csv-btn').disabled = false;
+                document.getElementById('export-timeline-png-btn').disabled = false;
                 document.getElementById('sort-by-program-btn').disabled = false;
                 document.getElementById('sort-by-start-btn').disabled = false;
 
@@ -869,6 +877,7 @@
                 cachedTimelineProjects = null;
                 document.getElementById('sort-by-program-btn').disabled = true;
                 document.getElementById('sort-by-start-btn').disabled = true;
+                document.getElementById('export-timeline-png-btn').disabled = true;
             }
         }
 
@@ -1165,6 +1174,99 @@
             updateSortButtonStyles();
             if (cachedTimelineProjects) {
                 renderGraphicalTimeline(cachedTimelineProjects);
+            }
+        });
+
+        // Export timeline as PNG
+        document.getElementById('export-timeline-png-btn').addEventListener('click', async () => {
+            const container = document.getElementById('timeline-container');
+            if (!container || !cachedTimelineProjects || cachedTimelineProjects.length === 0) {
+                alert('No timeline data to export. Please run the model first.');
+                return;
+            }
+
+            try {
+                const exportBtn = document.getElementById('export-timeline-png-btn');
+                exportBtn.disabled = true;
+                exportBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Generating...';
+
+                // Get portfolio name for filename
+                let portfolioDisplayName = currentPortfolio;
+                try {
+                    const configResponse = await fetch(`/api/config/${currentPortfolio}`);
+                    if (configResponse.ok) {
+                        const config = await configResponse.json();
+                        if (config.friendly_name && config.friendly_name.trim()) {
+                            portfolioDisplayName = config.friendly_name.trim();
+                        }
+                    }
+                } catch (err) {
+                    console.log('Could not fetch friendly name, using portfolio ID');
+                }
+
+                // Create a wrapper with title
+                const exportWrapper = document.createElement('div');
+                exportWrapper.style.cssText = 'background: white; padding: 2rem; width: fit-content;';
+
+                // Add title
+                const title = document.createElement('h2');
+                title.textContent = `${portfolioDisplayName} - Project Timeline`;
+                title.style.cssText = 'margin: 0 0 1rem 0; color: #1f2937; font-size: 1.5rem;';
+                exportWrapper.appendChild(title);
+
+                // Clone the timeline content
+                const timelineClone = container.cloneNode(true);
+                timelineClone.style.cssText = 'margin-top: 1rem;';
+                exportWrapper.appendChild(timelineClone);
+
+                // Temporarily add to body for rendering
+                exportWrapper.style.position = 'absolute';
+                exportWrapper.style.left = '-9999px';
+                exportWrapper.style.top = '0';
+                document.body.appendChild(exportWrapper);
+
+                // Get the full dimensions
+                const fullWidth = exportWrapper.scrollWidth;
+                const fullHeight = exportWrapper.scrollHeight;
+
+                // Use html2canvas to capture the wrapper
+                const canvas = await html2canvas(exportWrapper, {
+                    backgroundColor: '#ffffff',
+                    scale: 2, // Higher quality
+                    logging: false,
+                    useCORS: true,
+                    width: fullWidth,
+                    height: fullHeight,
+                    windowWidth: fullWidth,
+                    windowHeight: fullHeight,
+                    x: 0,
+                    y: 0
+                });
+
+                // Remove temporary wrapper
+                document.body.removeChild(exportWrapper);
+
+                // Convert to blob and download
+                canvas.toBlob((blob) => {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    const portfolioName = currentPortfolio || 'timeline';
+                    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+                    link.download = `${portfolioName}_timeline_${timestamp}.png`;
+                    link.href = url;
+                    link.click();
+                    URL.revokeObjectURL(url);
+
+                    exportBtn.disabled = false;
+                    exportBtn.innerHTML = '<i class="bi bi-image"></i> Export PNG';
+                });
+
+            } catch (err) {
+                console.error('Error exporting timeline:', err);
+                alert('Failed to export timeline. Please try again.');
+                const exportBtn = document.getElementById('export-timeline-png-btn');
+                exportBtn.disabled = false;
+                exportBtn.innerHTML = '<i class="bi bi-image"></i> Export PNG';
             }
         });
 
