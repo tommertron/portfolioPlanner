@@ -467,49 +467,6 @@ def create_app() -> Flask:
         except (ValueError, OSError) as e:
             return jsonify({"error": str(e)}), 400
 
-    @app.post("/api/portfolio/create")
-    def create_portfolio():
-        """Create a new portfolio by copying from sample portfolio"""
-        import shutil
-        import re
-
-        try:
-            data = request.get_json()
-            if not data or "name" not in data:
-                return jsonify({"error": "Portfolio name is required"}), 400
-
-            portfolio_name = data["name"].strip()
-
-            # Validate portfolio name (alphanumeric, dashes, underscores only)
-            if not re.match(r'^[a-zA-Z0-9_-]+$', portfolio_name):
-                return jsonify({"error": "Portfolio name can only contain letters, numbers, dashes, and underscores"}), 400
-
-            # Check if portfolio already exists
-            new_portfolio_path = projects_root / portfolio_name
-            if new_portfolio_path.exists():
-                return jsonify({"error": f"Portfolio '{portfolio_name}' already exists"}), 400
-
-            # Find sample portfolio
-            sample_path = projects_root / "sample"
-            if not sample_path.exists():
-                return jsonify({"error": "Sample portfolio not found. Cannot create new portfolio."}), 500
-
-            # Copy sample portfolio to new name
-            shutil.copytree(sample_path, new_portfolio_path)
-
-            # Create output directory if it doesn't exist
-            output_dir = new_portfolio_path / "output"
-            output_dir.mkdir(exist_ok=True)
-
-            return jsonify({
-                "success": True,
-                "name": portfolio_name,
-                "path": new_portfolio_path.as_posix()
-            }), 201
-
-        except (ValueError, OSError) as e:
-            return jsonify({"error": str(e)}), 400
-
     @app.get("/api/output/projects/<portfolio_name>")
     def get_output_projects(portfolio_name: str):
         """Get scheduled projects.csv from output folder"""
