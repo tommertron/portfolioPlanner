@@ -198,9 +198,40 @@ Projects won't start unless they can receive at least 0.5 person-months per mont
 - **Frontend**: Bootstrap 5, vanilla JavaScript
 - **Scheduling**: Custom resource-constrained scheduling algorithm
 
+## Testing
+
+Run the unit test suite to verify the scheduler is working correctly:
+
+```bash
+python3 test_scheduler.py
+```
+
+The test suite includes:
+- **WIP limit validation**: Ensures concurrent projects never exceed configured limits
+- **Capacity constraint checks**: Verifies allocated capacity doesn't exceed available capacity
+- **Priority ordering**: Confirms higher priority projects start first on average
+- **Duration checks**: Ensures projects complete in reasonable timeframes
+- **KTLO calculations**: Validates KTLO percentage reduces capacity correctly
+- **Edge cases**: Tests zero-effort projects, single-resource projects, etc.
+
+All tests use the `portfoliotester` portfolio for consistent validation.
+
+### Running Tests After Changes
+
+Always run the test suite after modifying the scheduling algorithm:
+
+```bash
+python3 test_scheduler.py
+```
+
+All tests should pass before committing changes.
+
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please:
+1. Run the test suite and ensure all tests pass
+2. Add new tests for any new functionality
+3. Submit a Pull Request with a clear description
 
 ## License
 
