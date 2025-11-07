@@ -232,12 +232,17 @@
                 <div class="row align-items-center">
                     <div class="col-md-6">
                         <label class="form-label fw-bold">Select Portfolio:</label>
-                        <select id="portfolio-selector" class="form-select">
-                            <option value="">Choose a portfolio...</option>
-                            {% for entry in project_dirs %}
-                                <option value="{{ entry.name }}">{{ entry.name }}</option>
-                            {% endfor %}
-                        </select>
+                        <div class="d-flex gap-2">
+                            <select id="portfolio-selector" class="form-select">
+                                <option value="">Choose a portfolio...</option>
+                                {% for entry in project_dirs %}
+                                    <option value="{{ entry.name }}">{{ entry.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button id="new-portfolio-btn" class="btn btn-primary" style="white-space: nowrap;">
+                                <i class="bi bi-plus-circle"></i> New
+                            </button>
+                        </div>
                     </div>
                     <div class="col-md-6 text-end mt-3 mt-md-0">
                         <button id="run-model-btn" class="btn btn-success btn-run" disabled>
@@ -526,6 +531,40 @@
                 console.error('Error loading programs:', err);
             }
         }
+
+        // New Portfolio Button
+        document.getElementById('new-portfolio-btn').addEventListener('click', async () => {
+            const portfolioName = prompt('Enter a name for the new portfolio:\n(Use lowercase letters, numbers, hyphens only)');
+
+            if (!portfolioName) return;
+
+            // Validate portfolio name
+            if (!/^[a-z0-9-]+$/.test(portfolioName)) {
+                alert('Portfolio name must contain only lowercase letters, numbers, and hyphens.');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/portfolio/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: portfolioName })
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert(`Portfolio "${portfolioName}" created successfully!`);
+                    // Reload the page to refresh portfolio list
+                    window.location.reload();
+                } else {
+                    alert(`Error: ${data.error || 'Failed to create portfolio'}`);
+                }
+            } catch (err) {
+                console.error('Error creating portfolio:', err);
+                alert('Failed to create portfolio. Please try again.');
+            }
+        });
 
         // Portfolio Selection
         document.getElementById('portfolio-selector').addEventListener('change', async (e) => {

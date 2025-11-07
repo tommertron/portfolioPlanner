@@ -630,6 +630,51 @@ def create_app() -> Flask:
         except (ValueError, OSError) as e:
             return jsonify({"error": str(e)}), 400
 
+    @app.post("/api/portfolio/create")
+    def create_portfolio():
+        """Create a new portfolio from the portfoliotester template"""
+        try:
+            data = request.get_json()
+            if not data or 'name' not in data:
+                return jsonify({"error": "Portfolio name is required"}), 400
+
+            portfolio_name = data['name']
+
+            # Validate portfolio name (lowercase letters, numbers, hyphens only)
+            import re
+            if not re.match(r'^[a-z0-9-]+$', portfolio_name):
+                return jsonify({"error": "Portfolio name must contain only lowercase letters, numbers, and hyphens"}), 400
+
+            # Check if portfolio already exists
+            new_portfolio_path = projects_root / portfolio_name
+            if new_portfolio_path.exists():
+                return jsonify({"error": f"Portfolio '{portfolio_name}' already exists"}), 400
+
+            # Copy portfoliotester as template
+            template_path = projects_root / "portfoliotester"
+            if not template_path.exists():
+                return jsonify({"error": "Template portfolio 'portfoliotester' not found"}), 500
+
+            # Copy the template
+            import shutil
+            shutil.copytree(template_path, new_portfolio_path)
+
+            # Clear output directory if it exists
+            output_dir = new_portfolio_path / "output"
+            if output_dir.exists():
+                for file in output_dir.iterdir():
+                    if file.is_file():
+                        file.unlink()
+
+            return jsonify({
+                "success": True,
+                "portfolio_name": portfolio_name,
+                "path": str(new_portfolio_path)
+            })
+
+        except Exception as e:
+            return jsonify({"error": str(e)}), 500
+
     return app
 
 
