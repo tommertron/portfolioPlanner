@@ -94,11 +94,26 @@
             text-align: center;
             border: 1px solid #e5e7eb;
             font-size: 0.8rem;
+            position: sticky;
+            z-index: 100;
+        }
+        .timeline-table thead tr:nth-child(1) th {
+            top: 0;
+        }
+        .timeline-table thead tr:nth-child(2) th {
+            top: 2.2rem;
+        }
+        .timeline-table thead tr:nth-child(3) th {
+            top: 4.2rem;
         }
         .timeline-table th.project-col {
             text-align: left;
             padding-left: 1rem;
             min-width: 250px;
+            position: sticky;
+            left: 0;
+            z-index: 101;
+            background: #f3f4f6;
         }
         .timeline-table td {
             padding: 0.35rem;
@@ -113,6 +128,11 @@
             font-size: 0.95rem;
             line-height: 1.3;
             letter-spacing: 0.01em;
+            position: sticky;
+            left: 0;
+            background: white;
+            z-index: 50;
+            box-shadow: 2px 0 4px rgba(0, 0, 0, 0.05);
         }
         .timeline-table td.project-name strong {
             font-size: 1rem;
@@ -213,6 +233,98 @@
         }
         .save-status-message.show {
             opacity: 1;
+        }
+        .date-input {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.35rem;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 110px;
+        }
+        .date-cell {
+            padding: 0.25rem !important;
+        }
+        .date-label {
+            font-size: 0.7rem;
+            color: #6b7280;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.15rem;
+        }
+        .manually-edited {
+            background-color: #fef3c7 !important;
+        }
+        .manually-edited .project-name,
+        .manually-edited td.project-name {
+            background-color: #fef3c7 !important;
+        }
+        .manually-edited-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #f59e0b;
+            border-radius: 50%;
+            margin-left: 0.25rem;
+            vertical-align: middle;
+        }
+        .timeline-bar.draggable {
+            cursor: grab;
+            user-select: none;
+            position: relative;
+            touch-action: none;
+        }
+        .timeline-bar.dragging {
+            cursor: grabbing;
+            opacity: 0.7;
+        }
+        .no-scroll {
+            overflow: hidden !important;
+        }
+        body.dragging-timeline {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+        }
+        .timeline-bar.draggable:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            transform: scale(1.02);
+            transition: all 0.1s ease;
+        }
+        .resize-handle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 10px;
+            cursor: col-resize;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .resize-handle::after {
+            content: '';
+            width: 3px;
+            height: 60%;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 2px;
+            box-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+        }
+        .resize-handle:hover::after {
+            background: rgba(255, 255, 255, 1);
+            width: 4px;
+        }
+        .resize-handle.left {
+            left: 0;
+            padding-left: 2px;
+        }
+        .resize-handle.right {
+            right: 0;
+            padding-right: 2px;
+        }
+        .bar-content {
+            pointer-events: none;
         }
     </style>
 </head>
@@ -405,13 +517,24 @@
                                             <i class="bi bi-calendar"></i> Sort by Start Date
                                         </button>
                                     </div>
-                                    <div class="btn-group" role="group">
-                                        <button id="export-timeline-png-btn" class="btn btn-sm btn-outline-primary" disabled>
-                                            <i class="bi bi-image"></i> Export PNG
-                                        </button>
-                                        <button id="export-csv-btn" class="btn btn-sm btn-outline-primary" disabled>
-                                            <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
-                                        </button>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="btn-group" role="group">
+                                            <button id="edit-mode-btn" class="btn btn-sm btn-outline-warning" disabled>
+                                                <i class="bi bi-pencil"></i> Edit Mode
+                                            </button>
+                                            <button id="reschedule-btn" class="btn btn-sm btn-outline-danger" disabled style="display:none;">
+                                                <i class="bi bi-arrow-clockwise"></i> Re-schedule
+                                            </button>
+                                        </div>
+                                        <div class="btn-group" role="group">
+                                            <button id="export-timeline-png-btn" class="btn btn-sm btn-outline-primary" disabled>
+                                                <i class="bi bi-image"></i> Export PNG
+                                            </button>
+                                            <button id="export-csv-btn" class="btn btn-sm btn-outline-primary" disabled>
+                                                <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                                            </button>
+                                        </div>
+                                        <span id="timeline-save-status" class="save-status-message"></span>
                                     </div>
                                 </div>
                                 <div id="timeline-container">
@@ -462,6 +585,8 @@
         let timelineSortMode = 'none'; // 'none', 'program', 'start_date'
         let cachedTimelineProjects = null;
         let jobStartTime = null;
+        let editMode = false;
+        let manuallyEditedProjects = new Set(); // Track which project IDs have been manually edited
 
         // Color helper functions
         const PROGRAM_COLOR_PALETTE = [
@@ -906,6 +1031,8 @@
                 document.getElementById('export-timeline-png-btn').disabled = false;
                 document.getElementById('sort-by-program-btn').disabled = false;
                 document.getElementById('sort-by-start-btn').disabled = false;
+                document.getElementById('edit-mode-btn').disabled = false;
+                document.getElementById('reschedule-btn').disabled = false;
 
                 // Generate graphical timeline
                 renderGraphicalTimeline(projects);
@@ -1065,12 +1192,32 @@
             sortedProjects.forEach((proj, index) => {
                 const programName = proj.parent_summary || '';
                 const programColor = getProgramColor(programName);
+                const isManuallyEdited = manuallyEditedProjects.has(proj.id);
+                const rowClass = isManuallyEdited ? 'manually-edited' : '';
 
-                html += '<tr>';
+                html += `<tr class="${rowClass}">`;
                 html += `<td class="project-name" style="border-left: 4px solid ${programColor};">`;
-                html += `<strong>${proj.id || ''} - ${proj.name || ''}</strong>`;
+                html += `<strong>${proj.id || ''} - ${proj.name || ''}`;
+                if (isManuallyEdited) {
+                    html += `<span class="manually-edited-indicator" title="Manually edited"></span>`;
+                }
+                html += `</strong>`;
                 html += `<span class="project-details">`;
                 html += `${programName || 'No Program'} | Priority ${proj.priority || 'N/A'}`;
+
+                // Add date inputs in edit mode
+                if (editMode) {
+                    html += `<br><div style="margin-top: 0.5rem;">`;
+                    html += `<span class="date-label">Start:</span>`;
+                    html += `<input type="date" class="date-input" value="${proj.start_date || ''}" `;
+                    html += `data-project-id="${proj.id}" data-field="start_date" data-original-value="${proj.start_date || ''}" onblur="handleDateChange(this)">`;
+                    html += ` `;
+                    html += `<span class="date-label" style="margin-left: 0.5rem;">End:</span>`;
+                    html += `<input type="date" class="date-input" value="${proj.end_date || ''}" `;
+                    html += `data-project-id="${proj.id}" data-field="end_date" data-original-value="${proj.end_date || ''}" onblur="handleDateChange(this)">`;
+                    html += `</div>`;
+                }
+
                 html += `</span></td>`;
 
                 // Generate timeline bars
@@ -1089,12 +1236,21 @@
                         if (monthStart >= projStart && monthStart <= projEnd) {
                             // This month is within the project timeline
                             let barClass = 'timeline-bar';
-                            if (monthStart.getTime() === projStart.getTime() && monthStart.getTime() === projEnd.getTime()) {
+                            const isStart = monthStart.getTime() === projStart.getTime();
+                            const isEnd = monthStart.getTime() === projEnd.getTime();
+                            const isSingle = isStart && isEnd;
+
+                            if (isSingle) {
                                 barClass += ' single';
-                            } else if (monthStart.getTime() === projStart.getTime()) {
+                            } else if (isStart) {
                                 barClass += ' start';
-                            } else if (monthStart.getTime() === projEnd.getTime()) {
+                            } else if (isEnd) {
                                 barClass += ' end';
+                            }
+
+                            // Make draggable in edit mode
+                            if (editMode) {
+                                barClass += ' draggable';
                             }
 
                             const gradientStart = shadeColor(programColor, 0.12);
@@ -1103,7 +1259,28 @@
                             const borderColor = shadeColor(programColor, -0.28);
                             const barStyle = `background: linear-gradient(135deg, ${gradientStart}, ${gradientEnd}); color: ${barTextColor}; border-color: ${borderColor};`;
 
-                            html += `<td><div class="${barClass}" style="${barStyle}">●</div></td>`;
+                            const monthStr = month; // YYYY-MM format
+                            html += `<td data-month="${monthStr}">`;
+                            html += `<div class="${barClass}" style="${barStyle}" `;
+                            html += `data-project-id="${proj.id}" data-month="${monthStr}" `;
+                            html += `data-is-start="${isStart}" data-is-end="${isEnd}"`;
+                            if (editMode) {
+                                html += ` onmousedown="handleBarMouseDown(event, this)"`;
+                            }
+                            html += `>`;
+
+                            // Add resize handles in edit mode
+                            if (editMode) {
+                                if (isStart) {
+                                    html += `<div class="resize-handle left" data-handle="start" onmousedown="handleResizeMouseDown(event, this, '${proj.id}', 'start')"></div>`;
+                                }
+                                if (isEnd) {
+                                    html += `<div class="resize-handle right" data-handle="end" onmousedown="handleResizeMouseDown(event, this, '${proj.id}', 'end')"></div>`;
+                                }
+                            }
+
+                            html += `<span class="bar-content">●</span>`;
+                            html += `</div></td>`;
                         } else {
                             html += '<td></td>';
                         }
@@ -1139,6 +1316,256 @@
             } catch (err) {
                 document.getElementById('bottleneck-container').innerHTML = '<p class="text-danger">Error loading bottleneck analysis</p>';
             }
+        }
+
+        // Handle date changes in edit mode
+        function handleDateChange(input) {
+            const projectId = input.dataset.projectId;
+            const field = input.dataset.field;
+            const newValue = input.value;
+            const originalValue = input.dataset.originalValue;
+
+            // Skip if value hasn't changed
+            if (newValue === originalValue) {
+                return;
+            }
+
+            // Validate dates
+            if (!newValue) {
+                alert('Date cannot be empty');
+                input.value = originalValue; // Revert to original
+                return;
+            }
+
+            // Find and update the project in cachedTimelineProjects
+            const project = cachedTimelineProjects.find(p => p.id === projectId);
+            if (project) {
+                const oldValue = project[field];
+                project[field] = newValue;
+
+                // Validate that start_date < end_date
+                if (project.start_date && project.end_date) {
+                    const startDate = new Date(project.start_date);
+                    const endDate = new Date(project.end_date);
+
+                    if (startDate > endDate) {
+                        alert('Start date must be before end date');
+                        project[field] = oldValue; // Revert
+                        input.value = oldValue;
+                        return;
+                    }
+                }
+
+                // Mark as manually edited
+                manuallyEditedProjects.add(projectId);
+
+                // Update the original value so we don't re-trigger on blur
+                input.dataset.originalValue = newValue;
+
+                // Re-render timeline to show updated bars
+                renderGraphicalTimeline(cachedTimelineProjects);
+
+                // Save to backend
+                saveProjectDates(projectId, project.start_date, project.end_date);
+            }
+        }
+
+        // Save updated project dates to backend
+        async function saveProjectDates(projectId, startDate, endDate) {
+            try {
+                const res = await fetch(`/api/output/projects/${currentPortfolio}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: projectId,
+                        start_date: startDate,
+                        end_date: endDate
+                    })
+                });
+
+                if (res.ok) {
+                    showSaveStatus('timeline-save-status', 'Dates saved!');
+                } else {
+                    const error = await res.json();
+                    alert(`Failed to save dates: ${error.error || 'Unknown error'}`);
+                }
+            } catch (err) {
+                console.error('Error saving dates:', err);
+                alert('Failed to save dates. Please try again.');
+            }
+        }
+
+        // Drag state
+        let dragState = null;
+
+        // Handle resize via handles
+        function handleResizeMouseDown(event, handleElement, projectId, handleType) {
+            if (!editMode) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            const project = cachedTimelineProjects.find(p => p.id === projectId);
+            if (!project) return;
+
+            const barElement = handleElement.closest('.timeline-bar');
+            const currentMonth = barElement.dataset.month;
+
+            const dragType = handleType === 'start' ? 'resize-start' : 'resize-end';
+
+            dragState = {
+                projectId,
+                project,
+                dragType,
+                originalStart: project.start_date,
+                originalEnd: project.end_date,
+                startMonth: currentMonth
+            };
+
+            barElement.classList.add('dragging');
+            document.body.classList.add('dragging-timeline');
+
+            document.addEventListener('mousemove', handleBarMouseMove, { passive: false });
+            document.addEventListener('mouseup', handleBarMouseUp, { passive: false });
+            document.addEventListener('selectstart', preventSelection);
+        }
+
+        function preventSelection(e) {
+            e.preventDefault();
+        }
+
+        // Handle bar dragging (move whole bar)
+        function handleBarMouseDown(event, barElement) {
+            if (!editMode) return;
+
+            // Don't trigger if clicking on a handle
+            if (event.target.classList.contains('resize-handle')) {
+                return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            const projectId = barElement.dataset.projectId;
+            const currentMonth = barElement.dataset.month;
+
+            const project = cachedTimelineProjects.find(p => p.id === projectId);
+            if (!project) return;
+
+            // Always move the whole bar when clicking the bar itself
+            dragState = {
+                projectId,
+                project,
+                dragType: 'move',
+                originalStart: project.start_date,
+                originalEnd: project.end_date,
+                startMonth: currentMonth
+            };
+
+            barElement.classList.add('dragging');
+            document.body.classList.add('dragging-timeline');
+
+            document.addEventListener('mousemove', handleBarMouseMove, { passive: false });
+            document.addEventListener('mouseup', handleBarMouseUp, { passive: false });
+            document.addEventListener('selectstart', preventSelection);
+        }
+
+        function handleBarMouseMove(event) {
+            if (!dragState) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            // Find which month cell the mouse is over
+            const target = document.elementFromPoint(event.clientX, event.clientY);
+            const cell = target?.closest('td[data-month]');
+            if (!cell) return;
+
+            const targetMonth = cell.dataset.month;
+            if (!targetMonth) return;
+
+            const { project, dragType, originalStart, originalEnd } = dragState;
+
+            let newStartDate = project.start_date;
+            let newEndDate = project.end_date;
+
+            const targetDate = new Date(targetMonth + '-01');
+            const originalStartDate = new Date(originalStart);
+            const originalEndDate = new Date(originalEnd);
+
+            if (dragType === 'resize-start') {
+                // Dragging the start date
+                const endDate = new Date(project.end_date);
+                if (targetDate <= endDate) {
+                    newStartDate = targetMonth + '-01';
+                }
+            } else if (dragType === 'resize-end') {
+                // Dragging the end date
+                const startDate = new Date(project.start_date);
+                if (targetDate >= startDate) {
+                    newEndDate = targetMonth + '-01';
+                }
+            } else if (dragType === 'move') {
+                // Moving the whole bar
+                const startMonthDate = new Date(dragState.startMonth + '-01');
+                const monthsDiff = (targetDate.getFullYear() - startMonthDate.getFullYear()) * 12 +
+                                   (targetDate.getMonth() - startMonthDate.getMonth());
+
+                const projDurationMonths = (originalEndDate.getFullYear() - originalStartDate.getFullYear()) * 12 +
+                                           (originalEndDate.getMonth() - originalStartDate.getMonth());
+
+                const newStart = new Date(originalStartDate);
+                newStart.setMonth(newStart.getMonth() + monthsDiff);
+
+                const newEnd = new Date(newStart);
+                newEnd.setMonth(newEnd.getMonth() + projDurationMonths);
+
+                newStartDate = newStart.toISOString().slice(0, 10);
+                newEndDate = newEnd.toISOString().slice(0, 10);
+            }
+
+            // Update project temporarily (will re-render)
+            if (newStartDate !== project.start_date || newEndDate !== project.end_date) {
+                project.start_date = newStartDate;
+                project.end_date = newEndDate;
+                renderGraphicalTimeline(cachedTimelineProjects);
+            }
+        }
+
+        function handleBarMouseUp(event) {
+            if (!dragState) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const { projectId, project, originalStart, originalEnd } = dragState;
+
+            // Remove event listeners
+            document.removeEventListener('mousemove', handleBarMouseMove, { passive: false });
+            document.removeEventListener('mouseup', handleBarMouseUp, { passive: false });
+            document.removeEventListener('selectstart', preventSelection);
+
+            // Remove body class
+            document.body.classList.remove('dragging-timeline');
+
+            // Check if dates actually changed
+            if (project.start_date !== originalStart || project.end_date !== originalEnd) {
+                // Mark as manually edited
+                manuallyEditedProjects.add(projectId);
+
+                // Save to backend
+                saveProjectDates(projectId, project.start_date, project.end_date);
+
+                // Re-render to update visual state
+                renderGraphicalTimeline(cachedTimelineProjects);
+            } else {
+                // Just remove dragging class
+                renderGraphicalTimeline(cachedTimelineProjects);
+            }
+
+            dragState = null;
         }
 
         // Export buttons
@@ -1213,6 +1640,67 @@
             updateSortButtonStyles();
             if (cachedTimelineProjects) {
                 renderGraphicalTimeline(cachedTimelineProjects);
+            }
+        });
+
+        // Edit Mode button
+        document.getElementById('edit-mode-btn').addEventListener('click', () => {
+            const wasInEditMode = editMode;
+            editMode = !editMode;
+            const btn = document.getElementById('edit-mode-btn');
+            const rescheduleBtn = document.getElementById('reschedule-btn');
+
+            if (editMode) {
+                btn.classList.remove('btn-outline-warning');
+                btn.classList.add('btn-warning');
+                btn.innerHTML = '<i class="bi bi-pencil-fill"></i> Exit Edit Mode';
+                rescheduleBtn.style.display = 'inline-block';
+            } else {
+                btn.classList.remove('btn-warning');
+                btn.classList.add('btn-outline-warning');
+                btn.innerHTML = '<i class="bi bi-pencil"></i> Edit Mode';
+                rescheduleBtn.style.display = 'none';
+
+                // Exiting edit mode - clear highlighting and show save message
+                if (wasInEditMode && manuallyEditedProjects.size > 0) {
+                    showSaveStatus('timeline-save-status', `Changes saved for ${manuallyEditedProjects.size} project(s)!`);
+                    manuallyEditedProjects.clear();
+                }
+            }
+
+            if (cachedTimelineProjects) {
+                renderGraphicalTimeline(cachedTimelineProjects);
+            }
+        });
+
+        // Re-schedule button - reverts to scheduler-computed dates
+        document.getElementById('reschedule-btn').addEventListener('click', async () => {
+            if (!confirm('This will re-run the scheduler and overwrite any manual date changes. Continue?')) {
+                return;
+            }
+
+            const btn = document.getElementById('reschedule-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Re-scheduling...';
+
+            try {
+                const res = await fetch('/run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ project_dir: currentPortfolio })
+                });
+
+                const data = await res.json();
+                if (data.job_id) {
+                    pollJobStatus(data.job_id);
+                    // Clear manually edited set
+                    manuallyEditedProjects.clear();
+                }
+            } catch (err) {
+                console.error('Error re-scheduling:', err);
+                alert('Failed to re-schedule. Please try again.');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Re-schedule';
             }
         });
 

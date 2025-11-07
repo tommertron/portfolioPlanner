@@ -490,6 +490,73 @@ def create_app() -> Flask:
         except (ValueError, OSError) as e:
             return jsonify({"error": str(e)}), 400
 
+    @app.put("/api/output/projects/<portfolio_name>")
+    def update_output_project_dates(portfolio_name: str):
+        """Update start_date and end_date for a project in output projects.csv"""
+        try:
+            portfolio_path = projects_root / portfolio_name
+            portfolio_path = portfolio_path.resolve()
+            _validate_within_root(portfolio_path, projects_root)
+
+            # Get request data
+            data = request.get_json()
+            if not data:
+                return jsonify({"error": "Request body is required"}), 400
+
+            project_id = data.get('project_id')
+            start_date = data.get('start_date')
+            end_date = data.get('end_date')
+
+            if not project_id:
+                return jsonify({"error": "project_id is required"}), 400
+            if not start_date or not end_date:
+                return jsonify({"error": "start_date and end_date are required"}), 400
+
+            # Validate date format (YYYY-MM-DD)
+            import re
+            date_pattern = r'^\d{4}-\d{2}-\d{2}$'
+            if not re.match(date_pattern, start_date) or not re.match(date_pattern, end_date):
+                return jsonify({"error": "Dates must be in YYYY-MM-DD format"}), 400
+
+            # Read the output projects CSV
+            projects_file = portfolio_path / "output" / "projects.csv"
+            if not projects_file.exists():
+                return jsonify({"error": "Output projects.csv not found. Run the model first."}), 404
+
+            import csv
+            projects_data = []
+            fieldnames = None
+            project_found = False
+
+            with open(projects_file, 'r', newline='') as f:
+                reader = csv.DictReader(f)
+                fieldnames = reader.fieldnames
+                for row in reader:
+                    if row['id'] == project_id:
+                        row['start_date'] = start_date
+                        row['end_date'] = end_date
+                        project_found = True
+                    projects_data.append(row)
+
+            if not project_found:
+                return jsonify({"error": f"Project with id '{project_id}' not found"}), 404
+
+            # Write back to CSV
+            with open(projects_file, 'w', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(projects_data)
+
+            return jsonify({
+                "success": True,
+                "project_id": project_id,
+                "start_date": start_date,
+                "end_date": end_date
+            })
+
+        except (ValueError, OSError) as e:
+            return jsonify({"error": str(e)}), 400
+
     @app.get("/api/output/bottleneck/<portfolio_name>")
     def get_bottleneck_analysis(portfolio_name: str):
         """Get bottleneck_analysis.md from output folder"""
