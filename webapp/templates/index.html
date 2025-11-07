@@ -203,6 +203,17 @@
             color: var(--primary);
             font-weight: 600;
         }
+        .save-status-message {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--success);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+        }
+        .save-status-message.show {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -273,13 +284,14 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span><i class="bi bi-list-check"></i> Projects</span>
-                        <div>
+                        <div class="d-flex align-items-center gap-2">
                             <button id="add-project-btn" class="btn btn-sm btn-primary" disabled>
                                 <i class="bi bi-plus"></i> Add Project
                             </button>
                             <button id="save-projects-btn" class="btn btn-sm btn-success" style="display:none;">
                                 <i class="bi bi-save"></i> Save
                             </button>
+                            <span id="save-projects-status" class="save-status-message"></span>
                         </div>
                     </div>
                     <div class="card-body">
@@ -295,9 +307,12 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span><i class="bi bi-people"></i> Resource Configuration</span>
-                        <button id="save-resources-btn" class="btn btn-sm btn-success" style="display:none;">
-                            <i class="bi bi-save"></i> Save
-                        </button>
+                        <div class="d-flex align-items-center gap-2">
+                            <button id="save-resources-btn" class="btn btn-sm btn-success" style="display:none;">
+                                <i class="bi bi-save"></i> Save
+                            </button>
+                            <span id="save-resources-status" class="save-status-message"></span>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div id="time-off-section" class="mb-4">
@@ -326,9 +341,12 @@
                 <div class="card">
                     <div class="card-header d-flex justify-content-between align-items-center">
                         <span><i class="bi bi-gear"></i> Planning Settings</span>
-                        <button id="save-config-btn" class="btn btn-sm btn-success" style="display:none;">
-                            <i class="bi bi-save"></i> Save
-                        </button>
+                        <div class="d-flex align-items-center gap-2">
+                            <button id="save-config-btn" class="btn btn-sm btn-success" style="display:none;">
+                                <i class="bi bi-save"></i> Save
+                            </button>
+                            <span id="save-config-status" class="save-status-message"></span>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="mb-3">
@@ -601,7 +619,7 @@
                 body: JSON.stringify(projectsData)
             });
             if (res.ok) {
-                alert('Projects saved!');
+                showSaveStatus('save-projects-status', 'Projects saved!');
                 document.getElementById('save-projects-btn').style.display = 'none';
             }
         });
@@ -685,7 +703,7 @@
                 body: JSON.stringify(resourcesData)
             });
             if (res.ok) {
-                alert('Resources saved!');
+                showSaveStatus('save-resources-status', 'Resources saved!');
                 document.getElementById('save-resources-btn').style.display = 'none';
             }
         });
@@ -709,7 +727,7 @@
                 body: JSON.stringify(configData)
             });
             if (res.ok) {
-                alert('Config saved!');
+                showSaveStatus('save-config-status', 'Config saved!');
                 document.getElementById('save-config-btn').style.display = 'none';
             }
         });
@@ -1118,6 +1136,19 @@
 
         function showSaveButton(type) {
             document.getElementById(`save-${type}-btn`).style.display = 'inline-block';
+        }
+
+        function showSaveStatus(elementId, message) {
+            const statusEl = document.getElementById(elementId);
+            if (!statusEl) return;
+
+            statusEl.innerHTML = `<i class="bi bi-check-circle-fill"></i> ${message}`;
+            statusEl.classList.add('show');
+
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                statusEl.classList.remove('show');
+            }, 3000);
         }
 
         // Sort button event listeners
