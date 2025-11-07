@@ -1,5 +1,7 @@
 # Portfolio Planner
 
+[![Run Tests](https://github.com/tommertron/portfolioPlanner/actions/workflows/tests.yml/badge.svg)](https://github.com/tommertron/portfolioPlanner/actions/workflows/tests.yml)
+
 A resource-constrained project portfolio scheduler with an interactive web interface. Schedule projects based on resource availability, Work-In-Progress (WIP) limits, and KTLO (Keep The Lights On) constraints.
 
 ## Features
@@ -225,6 +227,16 @@ python3 test_scheduler.py
 ```
 
 All tests should pass before committing changes.
+
+### Continuous Integration
+
+The repository uses GitHub Actions to automatically run tests on:
+- Every push to the `main` branch
+- Every pull request targeting `main`
+
+Tests run on Python versions 3.8, 3.9, 3.10, 3.11, and 3.12 to ensure compatibility.
+
+Pull requests will show a status check indicating whether tests pass. PRs cannot be merged if tests fail, ensuring code quality is maintained.
 
 ## Contributing
 
