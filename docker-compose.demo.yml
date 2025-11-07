@@ -1,0 +1,18 @@
+version: '3.8'
+
+# Docker Compose configuration for PUBLIC DEMO deployment
+# This includes the public demo warning banner enabled by default
+
+services:
+  portfolio-planner:
+    build: .
+    container_name: portfolio-planner-demo
+    restart: unless-stopped
+    ports:
+      - "5959:5959"
+    volumes:
+      # Mount portfolios directory to persist data
+      - ./portfolios:/app/portfolios
+    environment:
+      - FLASK_ENV=production
+      - PUBLIC_DEMO_MODE=true  # Shows public warning banner

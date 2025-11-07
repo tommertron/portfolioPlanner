@@ -98,7 +98,14 @@ def create_app() -> Flask:
     def index() -> str:
         jobs = [_job_to_dict(job) for job in job_store.list_jobs()]
         dirs = _list_project_dirs(projects_root)
-        return render_template("index.html", jobs=jobs, project_dirs=dirs, projects_root=projects_root)
+        public_demo_mode = os.getenv("PUBLIC_DEMO_MODE", "").lower() in ("true", "1", "yes")
+        return render_template(
+            "index.html",
+            jobs=jobs,
+            project_dirs=dirs,
+            projects_root=projects_root,
+            public_demo_mode=public_demo_mode
+        )
 
     @app.get("/dirs")
     def directories():

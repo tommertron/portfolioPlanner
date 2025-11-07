@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  portfolio-planner:
+    build: .
+    container_name: portfolio-planner
+    restart: unless-stopped
+    ports:
+      - "5959:5959"
+    volumes:
+      # Mount portfolios directory to persist data
+      - ./portfolios:/app/portfolios
+    environment:
+      - FLASK_ENV=production
+      # Uncomment the line below to enable public demo warning banner
+      # - PUBLIC_DEMO_MODE=true

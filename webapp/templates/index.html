@@ -337,6 +337,15 @@
         </div>
     </nav>
 
+    {% if public_demo_mode %}
+    <div class="alert alert-danger alert-dismissible fade show m-0 rounded-0 text-center" role="alert" style="border-left: none; border-right: none; border-top: none;">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <strong>PUBLIC DEMO:</strong> All information entered here is available to anyone on the public web.
+        Do not enter confidential data here as it will be accessible to others. This is here for demo purposes only.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
+
     <div class="container-fluid mt-4">
         <!-- Portfolio Selection -->
         <div class="card">
