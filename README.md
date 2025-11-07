@@ -29,7 +29,33 @@ A resource-constrained project portfolio scheduler with an interactive web inter
 - Python 3.8 or higher
 - pip (Python package manager)
 
-### Setup
+### Quick Start (Recommended)
+
+The easiest way to get up and running is with the provided startup script:
+
+```bash
+# Clone the repository
+git clone https://github.com/tommertron/portfolioPlanner.git
+cd portfolioPlanner
+
+# Make the script executable (first time only)
+chmod +x start.sh
+
+# Run the startup script - it handles everything!
+./start.sh
+```
+
+**The `start.sh` script will:**
+- ✅ Check that Python 3 is installed
+- ✅ Automatically install/update all dependencies from `requirements.txt`
+- ✅ Start the web server
+- ✅ Show you the URL to open in your browser (`http://localhost:5959`)
+
+That's it! The script handles all the setup for you.
+
+### Manual Setup (Alternative)
+
+If you prefer to install manually:
 
 1. Clone the repository:
 ```bash
@@ -44,15 +70,10 @@ pip install -r requirements.txt
 
 3. Start the web application:
 ```bash
-./start.sh
-```
-
-Or manually:
-```bash
 python3 run_webapp.py
 ```
 
-4. Open your browser to: `http://localhost:5000`
+4. Open your browser to: `http://localhost:5959`
 
 ## Usage
 
