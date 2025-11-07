@@ -1,0 +1,18 @@
+id,name,parent_summary,priority,effort_ba_pm,effort_planner_pm,effort_dev_pm
+IT-146,Financial System Automation,Operational Efficiency Program,1,0,0,0.5
+IT-116,Third-Party Integration Hub,Channel Growth Initiative,2,2,1,3
+IT-125,Service Catalog Redesign,Product Strategy Initiative,3,5,2,8
+IT-35,Database Redundancy Setup,Infrastructure Modernization,4,0,0,2
+IT-140,Master Data Cleanup,Cost Optimization Program,5,0,0,1
+IT-123,User Experience Platform,Product Strategy Initiative,6,5,2,8
+IT-32,Configuration Management Tool,Product Strategy Initiative,7,0,2,1
+IT-124,Business Intelligence Dashboard,Product Strategy Initiative,8,2,2,3
+IT-141,Compliance Monitoring System,Operational Efficiency Program,9,3,1,2
+IT-80,Legacy System Integration,Operational Efficiency Program,10,1,1.5,2
+IT-26,Workflow Automation Project,Operational Efficiency Program,11,0,1,0
+IT-126,Omnichannel Platform,Product Strategy Initiative,12,1,1,2
+IT-77,API Governance Framework,Infrastructure Modernization,13,0,2,1
+IT-103,Testing Tool Migration,Infrastructure Modernization,14,0,0,1
+IT-144,Messaging Service Upgrade,Infrastructure Modernization,15,0,0.5,1.5
+IT-143,ETL Pipeline Enhancement,Infrastructure Modernization,16,0.5,0,1.5
+IT-142,Transaction Processing Update,Operational Efficiency Program,17,1.5,1,2

@@ -1,0 +1,10 @@
+# Ignore all folders under portfolios/
+portfolios/*
+
+# But don't ignore portfoliotester
+!portfolios/portfoliotester/
+!portfolios/portfoliotester/**
+
+# Ignore .DS_Store files
+.DS_Store
+**/.DS_Store

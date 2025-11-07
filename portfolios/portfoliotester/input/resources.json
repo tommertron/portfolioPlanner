@@ -1,0 +1,27 @@
+{
+  "time_off": {
+    "holidays_per_year": 15,
+    "avg_time_off_all_resources": 20
+  },
+  "resources": [
+    {
+      "type": "BA",
+      "number": 2,
+      "ktlo_percentage": 0.2,
+      "wip_limit": 2
+    },
+    {
+      "type": "Developer",
+      "number": 3,
+      "ktlo_percentage": 0.2,
+      "avg_time_off": 40,
+      "wip_limit": 2
+    },
+    {
+      "type": "PM",
+      "number": 2,
+      "ktlo_percentage": 0.3,
+      "wip_limit": 4
+    }
+  ]
+}

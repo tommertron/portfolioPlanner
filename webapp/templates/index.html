@@ -1,0 +1,1161 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Portfolio Planner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --success: #059669;
+            --danger: #dc2626;
+            --warning: #d97706;
+        }
+        body {
+            background: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        .navbar {
+            background: linear-gradient(135deg, var(--primary) 0%, #1e40af 100%);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .card {
+            border: none;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+        }
+        .card-header {
+            background: white;
+            border-bottom: 2px solid #e5e7eb;
+            font-weight: 600;
+        }
+        .btn-run {
+            background: linear-gradient(135deg, var(--success) 0%, #047857 100%);
+            border: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 0.75rem 2rem;
+            box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+        .btn-run:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+        }
+        .status-badge {
+            font-size: 0.875rem;
+            padding: 0.375rem 0.75rem;
+        }
+        .editable-table {
+            font-size: 0.875rem;
+        }
+        .editable-table td {
+            cursor: text;
+        }
+        .editable-table input {
+            width: 100%;
+            border: 1px solid #e5e7eb;
+            padding: 0.25rem;
+            border-radius: 4px;
+        }
+        .timeline-bar {
+            height: 26px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 0.5rem;
+            font-size: 0.7rem;
+            color: white;
+            font-weight: 600;
+            border: 1px solid transparent;
+        }
+        .timeline-bar.start {
+            border-radius: 4px 0 0 4px;
+        }
+        .timeline-bar.end {
+            border-radius: 0 4px 4px 0;
+        }
+        .timeline-bar.single {
+            border-radius: 4px;
+        }
+        .timeline-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+        }
+        .timeline-table th {
+            background: #f3f4f6;
+            font-weight: 600;
+            color: var(--gray-700);
+            padding: 0.5rem 0.35rem;
+            text-align: center;
+            border: 1px solid #e5e7eb;
+            font-size: 0.8rem;
+        }
+        .timeline-table th.project-col {
+            text-align: left;
+            padding-left: 1rem;
+            min-width: 250px;
+        }
+        .timeline-table td {
+            padding: 0.35rem;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+        .timeline-table td.project-name {
+            text-align: left;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            font-size: 0.95rem;
+            line-height: 1.3;
+            letter-spacing: 0.01em;
+        }
+        .timeline-table td.project-name strong {
+            font-size: 1rem;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.1rem;
+        }
+        .project-details {
+            font-size: 0.8rem;
+            color: var(--gray-600);
+            font-weight: 400;
+            margin-top: 0;
+            display: block;
+        }
+        .timeline-table th.quarter-header {
+            background: #e5e7eb;
+            border: 1px solid #d1d5db;
+            font-weight: 700;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.25rem;
+            color: var(--gray-800);
+        }
+        .timeline-table th.year-header {
+            background: #d1d5db;
+            border: 1px solid #9ca3af;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 0.5rem 0.25rem;
+            color: var(--gray-900);
+        }
+        .bottleneck-high { background: var(--danger); }
+        .bottleneck-medium { background: var(--warning); }
+        .bottleneck-low { background: var(--success); }
+        .markdown-content h2 {
+            font-size: 1.25rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 0.5rem;
+        }
+        .markdown-content h3 {
+            font-size: 1.1rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+        }
+        .markdown-content table {
+            width: 100%;
+            margin: 1rem 0;
+        }
+        .markdown-content table th {
+            background: #f3f4f6;
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+        .markdown-content table td {
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid #f3f4f6;
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .job-running { color: var(--primary); font-weight: 600; }
+        .job-done { color: var(--success); font-weight: 600; }
+        .job-failed { color: var(--danger); font-weight: 600; }
+        #run-status-message {
+            min-height: 24px;
+            transition: all 0.3s ease;
+        }
+        #run-status-message.success {
+            color: var(--success);
+            font-weight: 600;
+        }
+        #run-status-message.error {
+            color: var(--danger);
+            font-weight: 600;
+        }
+        #run-status-message.running {
+            color: var(--primary);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-dark">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                <i class="bi bi-kanban"></i> Portfolio Planner
+            </span>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <!-- Portfolio Selection -->
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Select Portfolio:</label>
+                        <select id="portfolio-selector" class="form-select">
+                            <option value="">Choose a portfolio...</option>
+                            {% for entry in project_dirs %}
+                                <option value="{{ entry.name }}">{{ entry.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6 text-end mt-3 mt-md-0">
+                        <button id="run-model-btn" class="btn btn-success btn-run" disabled>
+                            <i class="bi bi-play-fill"></i> Run Model
+                        </button>
+                        <div id="run-status-message" class="mt-2" style="font-size: 0.875rem;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+            <li class="nav-item">
+                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#projects-tab">
+                    <i class="bi bi-list-check"></i> Projects
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#resources-tab">
+                    <i class="bi bi-people"></i> Resources
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#settings-tab">
+                    <i class="bi bi-gear"></i> Settings
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#results-tab">
+                    <i class="bi bi-graph-up"></i> Results
+                </button>
+            </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#files-tab">
+                    <i class="bi bi-file-earmark"></i> Files
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content mt-3">
+            <!-- Projects Tab -->
+            <div class="tab-pane fade show active" id="projects-tab">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-list-check"></i> Projects</span>
+                        <div>
+                            <button id="add-project-btn" class="btn btn-sm btn-primary" disabled>
+                                <i class="bi bi-plus"></i> Add Project
+                            </button>
+                            <button id="save-projects-btn" class="btn btn-sm btn-success" style="display:none;">
+                                <i class="bi bi-save"></i> Save
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="projects-container">
+                            <p class="text-muted">Select a portfolio to view projects</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Resources Tab -->
+            <div class="tab-pane fade" id="resources-tab">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-people"></i> Resource Configuration</span>
+                        <button id="save-resources-btn" class="btn btn-sm btn-success" style="display:none;">
+                            <i class="bi bi-save"></i> Save
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="time-off-section" class="mb-4">
+                            <h6>Time Off Settings</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label class="form-label">Holidays per Year (days)</label>
+                                    <input type="number" id="holidays-per-year" class="form-control" disabled>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Average Time Off (days)</label>
+                                    <input type="number" id="avg-time-off" class="form-control" disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <h6>Resource Types</h6>
+                        <div id="resources-container">
+                            <p class="text-muted">Select a portfolio to configure resources</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div class="tab-pane fade" id="settings-tab">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="bi bi-gear"></i> Planning Settings</span>
+                        <button id="save-config-btn" class="btn btn-sm btn-success" style="display:none;">
+                            <i class="bi bi-save"></i> Save
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Planning Start Date</label>
+                            <input type="date" id="planning-start" class="form-control" disabled>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Status -->
+                <div class="card">
+                    <div class="card-header"><i class="bi bi-clock-history"></i> Recent Jobs</div>
+                    <div class="card-body">
+                        <div id="jobs-container">
+                            <p class="text-muted">No jobs yet</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Tab -->
+            <div class="tab-pane fade" id="results-tab">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="bi bi-graph-up"></i> Results
+                    </div>
+                    <div class="card-body">
+                        <!-- Subtabs for Timeline and Resource Analysis -->
+                        <ul class="nav nav-pills mb-3" role="tablist">
+                            <li class="nav-item">
+                                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#timeline-subtab">
+                                    <i class="bi bi-calendar-event"></i> Timeline
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#resource-analysis-subtab">
+                                    <i class="bi bi-speedometer2"></i> Resource Analysis
+                                </button>
+                            </li>
+                        </ul>
+
+                        <div class="tab-content">
+                            <!-- Timeline Subtab -->
+                            <div class="tab-pane fade show active" id="timeline-subtab">
+                                <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap" style="gap: 0.5rem;">
+                                    <div class="btn-group" role="group">
+                                        <button id="sort-by-program-btn" class="btn btn-sm btn-outline-secondary" disabled>
+                                            <i class="bi bi-folder"></i> Sort by Program
+                                        </button>
+                                        <button id="sort-by-start-btn" class="btn btn-sm btn-outline-secondary" disabled>
+                                            <i class="bi bi-calendar"></i> Sort by Start Date
+                                        </button>
+                                    </div>
+                                    <button id="export-csv-btn" class="btn btn-sm btn-outline-primary" disabled>
+                                        <i class="bi bi-download"></i> Export CSV
+                                    </button>
+                                </div>
+                                <div id="timeline-container">
+                                    <p class="text-muted">Run the model to see project timeline</p>
+                                </div>
+                            </div>
+
+                            <!-- Resource Analysis Subtab -->
+                            <div class="tab-pane fade" id="resource-analysis-subtab">
+                                <div class="d-flex justify-content-end mb-3">
+                                    <button id="export-md-btn" class="btn btn-sm btn-outline-primary" disabled>
+                                        <i class="bi bi-download"></i> Export MD
+                                    </button>
+                                </div>
+                                <div id="bottleneck-container" class="markdown-content">
+                                    <p class="text-muted">Run the model to see resource analysis</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Files Tab -->
+            <div class="tab-pane fade" id="files-tab">
+                <div class="card">
+                    <div class="card-header"><i class="bi bi-folder"></i> Portfolio Files</div>
+                    <div class="card-body">
+                        <div id="files-container">
+                            <p class="text-muted">Select a portfolio to view files</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@11.1.1/marked.min.js"></script>
+    <script>
+        let currentPortfolio = null;
+        let projectsData = [];
+        let resourcesData = null;
+        let configData = null;
+        let pollInterval = null;
+        let programsData = [];
+        let timelineSortMode = 'none'; // 'none', 'program', 'start_date'
+        let cachedTimelineProjects = null;
+        let jobStartTime = null;
+
+        // Color helper functions
+        const PROGRAM_COLOR_PALETTE = [
+            '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd',
+            '#8c564b', '#e377c2', '#7f7f7f', '#17becf', '#bcbd22'
+        ];
+
+        function hexToRgb(hex) {
+            const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+            return result ? {
+                r: parseInt(result[1], 16),
+                g: parseInt(result[2], 16),
+                b: parseInt(result[3], 16)
+            } : null;
+        }
+
+        function rgbToHex(r, g, b) {
+            return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+        }
+
+        function shadeColor(color, percent) {
+            const rgb = hexToRgb(color);
+            if (!rgb) return color;
+
+            const t = percent < 0 ? 0 : 255;
+            const p = percent < 0 ? percent * -1 : percent;
+
+            return rgbToHex(
+                Math.round((t - rgb.r) * p) + rgb.r,
+                Math.round((t - rgb.g) * p) + rgb.g,
+                Math.round((t - rgb.b) * p) + rgb.b
+            );
+        }
+
+        function getContrastingTextColor(hex) {
+            const rgb = hexToRgb(hex);
+            if (!rgb) return '#ffffff';
+            const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+            return luminance > 0.6 ? '#1f2937' : '#ffffff';
+        }
+
+        function getProgramColor(programName) {
+            if (!programName) return PROGRAM_COLOR_PALETTE[0];
+
+            // Find program in programs data
+            const program = programsData.find(p => p.name === programName);
+            if (program && program.color) return program.color;
+
+            // Generate color from name hash
+            let hash = 0;
+            for (let i = 0; i < programName.length; i++) {
+                hash = programName.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const index = Math.abs(hash) % PROGRAM_COLOR_PALETTE.length;
+            return PROGRAM_COLOR_PALETTE[index];
+        }
+
+        // Load programs data
+        async function loadPrograms() {
+            if (!currentPortfolio) return;
+            try {
+                const res = await fetch(`/api/programs/${currentPortfolio}`);
+                if (res.ok) {
+                    programsData = await res.json();
+                }
+            } catch (err) {
+                console.error('Error loading programs:', err);
+            }
+        }
+
+        // Portfolio Selection
+        document.getElementById('portfolio-selector').addEventListener('change', async (e) => {
+            currentPortfolio = e.target.value;
+            if (!currentPortfolio) return;
+
+            // Enable buttons
+            document.getElementById('run-model-btn').disabled = false;
+            document.getElementById('add-project-btn').disabled = false;
+            document.querySelectorAll('#planning-start, #holidays-per-year, #avg-time-off').forEach(el => el.disabled = false);
+
+            // Load data
+            await loadPrograms();
+            await loadProjects();
+            await loadResources();
+            await loadConfig();
+            await loadFiles();
+
+            // Load results if they exist
+            await loadResults();
+        });
+
+        // Load Projects
+        async function loadProjects() {
+            const res = await fetch(`/api/projects/${currentPortfolio}`);
+            projectsData = await res.json();
+            renderProjectsTable();
+        }
+
+        function renderProjectsTable() {
+            const container = document.getElementById('projects-container');
+            if (!projectsData.length) {
+                container.innerHTML = '<p class="text-muted">No projects found</p>';
+                return;
+            }
+
+            let html = '<div class="table-responsive"><table class="table table-sm editable-table">';
+            html += '<thead><tr>';
+            html += '<th>ID</th><th>Name</th><th>Program</th><th>Priority</th>';
+            html += '<th>BA (pm)</th><th>PM (pm)</th><th>Dev (pm)</th>';
+            html += '<th>Actions</th></tr></thead><tbody>';
+
+            projectsData.forEach((proj, idx) => {
+                html += `<tr data-idx="${idx}">`;
+                html += `<td contenteditable="true" data-field="id">${proj.id || ''}</td>`;
+                html += `<td contenteditable="true" data-field="name">${proj.name || ''}</td>`;
+                html += `<td contenteditable="true" data-field="parent_summary">${proj.parent_summary || ''}</td>`;
+                html += `<td contenteditable="true" data-field="priority">${proj.priority || ''}</td>`;
+                html += `<td contenteditable="true" data-field="effort_ba_pm">${proj.effort_ba_pm || '0'}</td>`;
+                html += `<td contenteditable="true" data-field="effort_planner_pm">${proj.effort_planner_pm || '0'}</td>`;
+                html += `<td contenteditable="true" data-field="effort_dev_pm">${proj.effort_dev_pm || '0'}</td>`;
+                html += `<td><button class="btn btn-sm btn-danger" onclick="deleteProject(${idx})"><i class="bi bi-trash"></i></button></td>`;
+                html += '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+            container.innerHTML = html;
+
+            // Add change listeners
+            container.querySelectorAll('[contenteditable]').forEach(el => {
+                el.addEventListener('blur', () => {
+                    const row = el.closest('tr');
+                    const idx = row.dataset.idx;
+                    const field = el.dataset.field;
+                    projectsData[idx][field] = el.textContent;
+                    showSaveButton('projects');
+                });
+            });
+        }
+
+        function deleteProject(idx) {
+            if (confirm('Delete this project?')) {
+                projectsData.splice(idx, 1);
+                renderProjectsTable();
+                showSaveButton('projects');
+            }
+        }
+
+        document.getElementById('add-project-btn').addEventListener('click', () => {
+            projectsData.push({
+                id: `PROJ-${projectsData.length + 1}`,
+                name: 'New Project',
+                parent_summary: '',
+                priority: projectsData.length + 1,
+                effort_ba_pm: '0',
+                effort_planner_pm: '0',
+                effort_dev_pm: '0'
+            });
+            renderProjectsTable();
+            showSaveButton('projects');
+        });
+
+        document.getElementById('save-projects-btn').addEventListener('click', async () => {
+            const res = await fetch(`/api/projects/${currentPortfolio}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(projectsData)
+            });
+            if (res.ok) {
+                alert('Projects saved!');
+                document.getElementById('save-projects-btn').style.display = 'none';
+            }
+        });
+
+        // Load Resources
+        async function loadResources() {
+            const res = await fetch(`/api/resources/${currentPortfolio}`);
+            resourcesData = await res.json();
+            renderResources();
+        }
+
+        function renderResources() {
+            document.getElementById('holidays-per-year').value = resourcesData.time_off?.holidays_per_year || 0;
+            document.getElementById('avg-time-off').value = resourcesData.time_off?.avg_time_off_all_resources || 0;
+
+            const container = document.getElementById('resources-container');
+            let html = '';
+
+            resourcesData.resources.forEach((res, idx) => {
+                html += `<div class="card mb-3">
+                    <div class="card-body">
+                        <h6>${res.type}</h6>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="form-label">Number of People</label>
+                                <input type="number" class="form-control" value="${res.number}"
+                                    data-idx="${idx}" data-field="number" onchange="updateResource(this)">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">KTLO %</label>
+                                <input type="number" class="form-control" value="${(res.ktlo_percentage * 100).toFixed(0)}"
+                                    data-idx="${idx}" data-field="ktlo_percentage" onchange="updateResource(this)">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">WIP Limit</label>
+                                <input type="number" class="form-control" value="${res.wip_limit}"
+                                    data-idx="${idx}" data-field="wip_limit" onchange="updateResource(this)">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Avg Time Off (days)</label>
+                                <input type="number" class="form-control" value="${res.avg_time_off || resourcesData.time_off?.avg_time_off_all_resources || 0}"
+                                    data-idx="${idx}" data-field="avg_time_off" onchange="updateResource(this)">
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function updateResource(el) {
+            const idx = el.dataset.idx;
+            const field = el.dataset.field;
+            let value = el.value;
+
+            if (field === 'ktlo_percentage') {
+                value = parseFloat(value) / 100;
+            } else {
+                value = parseFloat(value) || 0;
+            }
+
+            resourcesData.resources[idx][field] = value;
+            showSaveButton('resources');
+        }
+
+        document.getElementById('holidays-per-year').addEventListener('change', (e) => {
+            resourcesData.time_off.holidays_per_year = parseInt(e.target.value);
+            showSaveButton('resources');
+        });
+
+        document.getElementById('avg-time-off').addEventListener('change', (e) => {
+            resourcesData.time_off.avg_time_off_all_resources = parseInt(e.target.value);
+            showSaveButton('resources');
+        });
+
+        document.getElementById('save-resources-btn').addEventListener('click', async () => {
+            const res = await fetch(`/api/resources/${currentPortfolio}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(resourcesData)
+            });
+            if (res.ok) {
+                alert('Resources saved!');
+                document.getElementById('save-resources-btn').style.display = 'none';
+            }
+        });
+
+        // Load Config
+        async function loadConfig() {
+            const res = await fetch(`/api/config/${currentPortfolio}`);
+            configData = await res.json();
+            document.getElementById('planning-start').value = configData.planning_start || '';
+        }
+
+        document.getElementById('planning-start').addEventListener('change', (e) => {
+            configData.planning_start = e.target.value;
+            showSaveButton('config');
+        });
+
+        document.getElementById('save-config-btn').addEventListener('click', async () => {
+            const res = await fetch(`/api/config/${currentPortfolio}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(configData)
+            });
+            if (res.ok) {
+                alert('Config saved!');
+                document.getElementById('save-config-btn').style.display = 'none';
+            }
+        });
+
+        // Run Model
+        document.getElementById('run-model-btn').addEventListener('click', async () => {
+            if (!currentPortfolio) return;
+
+            const btn = document.getElementById('run-model-btn');
+            const statusMsg = document.getElementById('run-status-message');
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Running...';
+            statusMsg.className = 'mt-2 running';
+            statusMsg.innerHTML = '<i class="bi bi-hourglass-split"></i> Model is running...';
+
+            jobStartTime = Date.now();
+
+            const res = await fetch('/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ project_dir: currentPortfolio })
+            });
+
+            const data = await res.json();
+            if (data.job_id) {
+                pollJobStatus(data.job_id);
+            }
+        });
+
+        function pollJobStatus(jobId) {
+            if (pollInterval) clearInterval(pollInterval);
+
+            pollInterval = setInterval(async () => {
+                const res = await fetch(`/status/${jobId}`);
+                const job = await res.json();
+
+                updateJobsDisplay([job]);
+
+                if (job.state === 'done') {
+                    clearInterval(pollInterval);
+
+                    const btn = document.getElementById('run-model-btn');
+                    const statusMsg = document.getElementById('run-status-message');
+
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-play-fill"></i> Run Model';
+
+                    // Calculate duration
+                    const durationMs = jobStartTime ? Date.now() - jobStartTime : null;
+                    let durationText = '';
+                    if (durationMs) {
+                        const totalSeconds = Math.round(durationMs / 1000);
+                        if (totalSeconds >= 60) {
+                            const minutes = Math.floor(totalSeconds / 60);
+                            const seconds = totalSeconds % 60;
+                            durationText = ` (${minutes}m ${seconds}s)`;
+                        } else {
+                            durationText = ` (${totalSeconds}s)`;
+                        }
+                    }
+
+                    statusMsg.className = 'mt-2 success';
+                    statusMsg.innerHTML = `<i class="bi bi-check-circle-fill"></i> Model completed successfully${durationText}! Check the Results tab.`;
+
+                    await loadResults();
+                } else if (job.state === 'failed') {
+                    clearInterval(pollInterval);
+
+                    const btn = document.getElementById('run-model-btn');
+                    const statusMsg = document.getElementById('run-status-message');
+
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-play-fill"></i> Run Model';
+
+                    statusMsg.className = 'mt-2 error';
+                    statusMsg.innerHTML = `<i class="bi bi-x-circle-fill"></i> Model failed: ${job.message || 'Unknown error'}`;
+                }
+            }, 2000);
+        }
+
+        function updateJobsDisplay(jobs) {
+            const container = document.getElementById('jobs-container');
+            if (!jobs.length) {
+                container.innerHTML = '<p class="text-muted">No jobs yet</p>';
+                return;
+            }
+
+            let html = '<div class="list-group">';
+            jobs.forEach(job => {
+                const stateClass = `job-${job.state}`;
+                html += `<div class="list-group-item">
+                    <div class="d-flex justify-content-between">
+                        <div><strong>${job.id}</strong></div>
+                        <div><span class="${stateClass}">${job.state}</span></div>
+                    </div>
+                    <small class="text-muted">${job.created_at || ''}</small>
+                </div>`;
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // Load Results
+        async function loadResults() {
+            await loadTimeline();
+            await loadBottleneck();
+        }
+
+        async function loadTimeline() {
+            try {
+                await loadPrograms();
+
+                const res = await fetch(`/api/output/projects/${currentPortfolio}`);
+                const projects = await res.json();
+
+                if (projects.error) {
+                    document.getElementById('timeline-container').innerHTML = '<p class="text-muted">' + projects.error + '</p>';
+                    cachedTimelineProjects = null;
+                    document.getElementById('sort-by-program-btn').disabled = true;
+                    document.getElementById('sort-by-start-btn').disabled = true;
+                    return;
+                }
+
+                // Cache projects for re-sorting
+                cachedTimelineProjects = projects;
+
+                // Enable buttons
+                document.getElementById('export-csv-btn').disabled = false;
+                document.getElementById('sort-by-program-btn').disabled = false;
+                document.getElementById('sort-by-start-btn').disabled = false;
+
+                // Generate graphical timeline
+                renderGraphicalTimeline(projects);
+
+            } catch (err) {
+                console.error('Error loading timeline:', err);
+                document.getElementById('timeline-container').innerHTML = '<p class="text-danger">Error loading timeline</p>';
+                cachedTimelineProjects = null;
+                document.getElementById('sort-by-program-btn').disabled = true;
+                document.getElementById('sort-by-start-btn').disabled = true;
+            }
+        }
+
+        function renderGraphicalTimeline(projects) {
+            if (!projects || projects.length === 0) {
+                document.getElementById('timeline-container').innerHTML = '<p class="text-muted">No projects to display</p>';
+                return;
+            }
+
+            // Sort projects based on current sort mode
+            let sortedProjects = [...projects];
+            if (timelineSortMode === 'program') {
+                sortedProjects.sort((a, b) => {
+                    const programA = (a.parent_summary || '').toLowerCase();
+                    const programB = (b.parent_summary || '').toLowerCase();
+                    if (programA < programB) return -1;
+                    if (programA > programB) return 1;
+                    // Secondary sort by start date
+                    const startA = a.start_date || '';
+                    const startB = b.start_date || '';
+                    return startA.localeCompare(startB);
+                });
+            } else if (timelineSortMode === 'start_date') {
+                sortedProjects.sort((a, b) => {
+                    const startA = a.start_date || '';
+                    const startB = b.start_date || '';
+                    if (startA !== startB) {
+                        return startA.localeCompare(startB);
+                    }
+                    // Secondary sort by program
+                    const programA = (a.parent_summary || '').toLowerCase();
+                    const programB = (b.parent_summary || '').toLowerCase();
+                    return programA.localeCompare(programB);
+                });
+            }
+
+            // Get all unique months across all projects
+            const months = new Set();
+            sortedProjects.forEach(proj => {
+                if (!proj.start_date || !proj.end_date) return;
+
+                // Generate all months between start and end
+                const start = new Date(proj.start_date);
+                const end = new Date(proj.end_date);
+
+                let current = new Date(start.getFullYear(), start.getMonth(), 1);
+                const endMonth = new Date(end.getFullYear(), end.getMonth(), 1);
+
+                while (current <= endMonth) {
+                    const monthStr = current.toISOString().slice(0, 7); // YYYY-MM
+                    months.add(monthStr);
+                    current.setMonth(current.getMonth() + 1);
+                }
+            });
+
+            const sortedMonths = Array.from(months).sort();
+
+            // Helper function to format month as "Jan-27"
+            function formatMonthHeader(monthStr) {
+                const [year, month] = monthStr.split('-');
+                const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                                   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                const monthIndex = parseInt(month, 10) - 1;
+                const shortYear = year.slice(2); // "2027" -> "27"
+                return `${monthNames[monthIndex]}-${shortYear}`;
+            }
+
+            // Helper function to get quarter from month
+            function getQuarter(monthStr) {
+                const [year, month] = monthStr.split('-');
+                const monthNum = parseInt(month, 10);
+                const quarter = Math.ceil(monthNum / 3);
+                return { year, quarter: `Q${quarter}` };
+            }
+
+            // Group months by year and quarter for header rows
+            const yearGroups = [];
+            const quarterGroups = [];
+            let currentYear = null;
+            let currentQuarter = null;
+            let yearSpan = 0;
+            let quarterSpan = 0;
+
+            sortedMonths.forEach((month, index) => {
+                const { year, quarter } = getQuarter(month);
+
+                // Track year groups
+                if (year !== currentYear) {
+                    if (currentYear !== null) {
+                        yearGroups.push({ year: currentYear, span: yearSpan });
+                    }
+                    currentYear = year;
+                    yearSpan = 1;
+                } else {
+                    yearSpan++;
+                }
+
+                // Track quarter groups
+                const quarterKey = `${year}-${quarter}`;
+                if (quarterKey !== currentQuarter) {
+                    if (currentQuarter !== null) {
+                        quarterGroups.push({ label: currentQuarter.split('-')[1], span: quarterSpan });
+                    }
+                    currentQuarter = quarterKey;
+                    quarterSpan = 1;
+                } else {
+                    quarterSpan++;
+                }
+
+                // Handle last month
+                if (index === sortedMonths.length - 1) {
+                    yearGroups.push({ year: currentYear, span: yearSpan });
+                    quarterGroups.push({ label: currentQuarter.split('-')[1], span: quarterSpan });
+                }
+            });
+
+            // Build timeline table with year and quarter headers
+            let html = '<div class="table-responsive"><table class="timeline-table">';
+            html += '<thead>';
+
+            // Year header row
+            html += '<tr>';
+            html += '<th class="project-col year-header" rowspan="3">Project</th>';
+            yearGroups.forEach(group => {
+                html += `<th class="year-header" colspan="${group.span}">${group.year}</th>`;
+            });
+            html += '</tr>';
+
+            // Quarter header row
+            html += '<tr>';
+            quarterGroups.forEach(group => {
+                html += `<th class="quarter-header" colspan="${group.span}">${group.label}</th>`;
+            });
+            html += '</tr>';
+
+            // Month header row
+            html += '<tr>';
+            sortedMonths.forEach(month => {
+                html += `<th>${formatMonthHeader(month)}</th>`;
+            });
+            html += '</tr>';
+
+            html += '</thead>';
+            html += '<tbody>';
+
+            sortedProjects.forEach((proj, index) => {
+                const programName = proj.parent_summary || '';
+                const programColor = getProgramColor(programName);
+
+                html += '<tr>';
+                html += `<td class="project-name" style="border-left: 4px solid ${programColor};">`;
+                html += `<strong>${proj.id || ''} - ${proj.name || ''}</strong>`;
+                html += `<span class="project-details">`;
+                html += `${programName || 'No Program'} | Priority ${proj.priority || 'N/A'}`;
+                html += `</span></td>`;
+
+                // Generate timeline bars
+                if (proj.start_date && proj.end_date) {
+                    const start = new Date(proj.start_date);
+                    const end = new Date(proj.end_date);
+
+                    sortedMonths.forEach(month => {
+                        const monthDate = new Date(month + '-01');
+                        const monthStart = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1);
+                        const monthEnd = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0);
+
+                        const projStart = new Date(start.getFullYear(), start.getMonth(), 1);
+                        const projEnd = new Date(end.getFullYear(), end.getMonth(), 1);
+
+                        if (monthStart >= projStart && monthStart <= projEnd) {
+                            // This month is within the project timeline
+                            let barClass = 'timeline-bar';
+                            if (monthStart.getTime() === projStart.getTime() && monthStart.getTime() === projEnd.getTime()) {
+                                barClass += ' single';
+                            } else if (monthStart.getTime() === projStart.getTime()) {
+                                barClass += ' start';
+                            } else if (monthStart.getTime() === projEnd.getTime()) {
+                                barClass += ' end';
+                            }
+
+                            const gradientStart = shadeColor(programColor, 0.12);
+                            const gradientEnd = shadeColor(programColor, -0.18);
+                            const barTextColor = getContrastingTextColor(programColor);
+                            const borderColor = shadeColor(programColor, -0.28);
+                            const barStyle = `background: linear-gradient(135deg, ${gradientStart}, ${gradientEnd}); color: ${barTextColor}; border-color: ${borderColor};`;
+
+                            html += `<td><div class="${barClass}" style="${barStyle}">●</div></td>`;
+                        } else {
+                            html += '<td></td>';
+                        }
+                    });
+                } else {
+                    // No dates - fill with empty cells
+                    sortedMonths.forEach(() => {
+                        html += '<td></td>';
+                    });
+                }
+
+                html += '</tr>';
+            });
+
+            html += '</tbody></table></div>';
+            document.getElementById('timeline-container').innerHTML = html;
+        }
+
+        async function loadBottleneck() {
+            try {
+                const res = await fetch(`/api/output/bottleneck/${currentPortfolio}`);
+                const data = await res.json();
+
+                if (data.error) {
+                    document.getElementById('bottleneck-container').innerHTML = '<p class="text-muted">' + data.error + '</p>';
+                    return;
+                }
+
+                document.getElementById('export-md-btn').disabled = false;
+
+                const html = marked.parse(data.markdown);
+                document.getElementById('bottleneck-container').innerHTML = html;
+            } catch (err) {
+                document.getElementById('bottleneck-container').innerHTML = '<p class="text-danger">Error loading bottleneck analysis</p>';
+            }
+        }
+
+        // Export buttons
+        document.getElementById('export-csv-btn').addEventListener('click', () => {
+            window.open(`/files/${currentPortfolio}/output/projects.csv`, '_blank');
+        });
+
+        document.getElementById('export-md-btn').addEventListener('click', () => {
+            window.open(`/files/${currentPortfolio}/output/bottleneck_analysis.md`, '_blank');
+        });
+
+        // Load Files
+        async function loadFiles() {
+            const res = await fetch(`/api/files/${currentPortfolio}`);
+            const data = await res.json();
+
+            const container = document.getElementById('files-container');
+            let html = '<h6>Input Files</h6><div class="list-group mb-3">';
+
+            data.input.forEach(file => {
+                html += `<a href="/files/${currentPortfolio}/${file.path}" class="list-group-item list-group-item-action" target="_blank">
+                    <i class="bi bi-file-earmark"></i> ${file.name}
+                    <small class="text-muted float-end">${new Date(file.modified).toLocaleString()}</small>
+                </a>`;
+            });
+
+            html += '</div><h6>Output Files</h6><div class="list-group">';
+
+            if (data.output.length) {
+                data.output.forEach(file => {
+                    html += `<a href="/files/${currentPortfolio}/${file.path}" class="list-group-item list-group-item-action" target="_blank">
+                        <i class="bi bi-file-earmark-check"></i> ${file.name}
+                        <small class="text-muted float-end">${new Date(file.modified).toLocaleString()}</small>
+                    </a>`;
+                });
+            } else {
+                html += '<p class="text-muted">No output files yet. Run the model first.</p>';
+            }
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function showSaveButton(type) {
+            document.getElementById(`save-${type}-btn`).style.display = 'inline-block';
+        }
+
+        // Sort button event listeners
+        document.getElementById('sort-by-program-btn').addEventListener('click', () => {
+            timelineSortMode = 'program';
+            updateSortButtonStyles();
+            if (cachedTimelineProjects) {
+                renderGraphicalTimeline(cachedTimelineProjects);
+            }
+        });
+
+        document.getElementById('sort-by-start-btn').addEventListener('click', () => {
+            timelineSortMode = 'start_date';
+            updateSortButtonStyles();
+            if (cachedTimelineProjects) {
+                renderGraphicalTimeline(cachedTimelineProjects);
+            }
+        });
+
+        function updateSortButtonStyles() {
+            const programBtn = document.getElementById('sort-by-program-btn');
+            const startBtn = document.getElementById('sort-by-start-btn');
+
+            // Remove active class from both
+            programBtn.classList.remove('btn-primary');
+            programBtn.classList.add('btn-outline-secondary');
+            startBtn.classList.remove('btn-primary');
+            startBtn.classList.add('btn-outline-secondary');
+
+            // Add active class to the selected button
+            if (timelineSortMode === 'program') {
+                programBtn.classList.remove('btn-outline-secondary');
+                programBtn.classList.add('btn-primary');
+            } else if (timelineSortMode === 'start_date') {
+                startBtn.classList.remove('btn-outline-secondary');
+                startBtn.classList.add('btn-primary');
+            }
+        }
+    </script>
+</body>
+</html>
