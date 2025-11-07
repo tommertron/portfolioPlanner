@@ -2,17 +2,17 @@ id,name,parent_summary,priority,effort_ba_pm,effort_planner_pm,effort_dev_pm,sta
 IT-146,Financial System Automation,Operational Efficiency Program,1,0.0,0.0,0.5,2025-12-01,2026-01-01
 IT-116,Third-Party Integration Hub,Channel Growth Initiative,2,2.0,1.0,3.0,2025-12-01,2026-02-01
 IT-125,Service Catalog Redesign,Product Strategy Initiative,3,5.0,2.0,8.0,2026-01-01,2026-07-01
-IT-35,Database Redundancy Setup,Infrastructure Modernization,4,0.0,0.0,2.0,2026-01-01,2026-08-01
-IT-140,Master Data Cleanup,Cost Optimization Program,5,0.0,0.0,1.0,2026-02-01,2026-08-01
-IT-123,User Experience Platform,Product Strategy Initiative,6,5.0,2.0,8.0,2026-02-01,2027-01-01
-IT-32,Configuration Management Tool,Product Strategy Initiative,7,0.0,2.0,1.0,2026-02-01,2027-01-01
-IT-124,Business Intelligence Dashboard,Product Strategy Initiative,8,2.0,2.0,3.0,2026-02-01,2027-03-01
-IT-141,Compliance Monitoring System,Operational Efficiency Program,9,3.0,1.0,2.0,2026-02-01,2027-04-01
-IT-80,Legacy System Integration,Operational Efficiency Program,10,1.0,1.5,2.0,2026-02-01,2027-05-01
-IT-26,Workflow Automation Project,Operational Efficiency Program,11,0.0,1.0,0.0,2025-12-01,2026-02-01
-IT-126,Omnichannel Platform,Product Strategy Initiative,12,1.0,1.0,2.0,2026-02-01,2027-06-01
-IT-77,API Governance Framework,Infrastructure Modernization,13,0.0,2.0,1.0,2026-02-01,2027-07-01
-IT-103,Testing Tool Migration,Infrastructure Modernization,14,0.0,0.0,1.0,2026-02-01,2027-07-01
-IT-144,Messaging Service Upgrade,Infrastructure Modernization,15,0.0,0.5,1.5,2026-02-01,2027-08-01
-IT-143,ETL Pipeline Enhancement,Infrastructure Modernization,16,0.5,0.0,1.5,2026-02-01,2027-09-01
-IT-142,Transaction Processing Update,Operational Efficiency Program,17,1.5,1.0,2.0,2026-02-01,2027-10-01
+IT-35,Database Redundancy Setup,Infrastructure Modernization,4,0.0,0.0,2.0,2026-06-01,2026-08-01
+IT-140,Master Data Cleanup,Cost Optimization Program,5,0.0,0.0,1.0,2026-07-01,2026-08-01
+IT-123,User Experience Platform,Product Strategy Initiative,6,5.0,2.0,8.0,2026-03-01,2027-01-01
+IT-32,Configuration Management Tool,Product Strategy Initiative,7,0.0,2.0,1.0,2026-05-01,2027-01-01
+IT-124,Business Intelligence Dashboard,Product Strategy Initiative,8,2.0,2.0,3.0,2026-07-01,2027-03-01
+IT-141,Compliance Monitoring System,Operational Efficiency Program,9,3.0,1.0,2.0,2026-09-01,2027-04-01
+IT-80,Legacy System Integration,Operational Efficiency Program,10,1.0,1.5,2.0,2026-10-01,2027-05-01
+IT-26,Workflow Automation Project,Operational Efficiency Program,11,0.0,1.0,0.0,2026-11-01,2027-01-01
+IT-126,Omnichannel Platform,Product Strategy Initiative,12,1.0,1.0,2.0,2026-12-01,2027-06-01
+IT-77,API Governance Framework,Infrastructure Modernization,13,0.0,2.0,1.0,2027-01-01,2027-06-01
+IT-103,Testing Tool Migration,Infrastructure Modernization,14,0.0,0.0,1.0,2027-06-01,2027-07-01
+IT-144,Messaging Service Upgrade,Infrastructure Modernization,15,0.0,0.5,1.5,2027-03-01,2027-08-01
+IT-143,ETL Pipeline Enhancement,Infrastructure Modernization,16,0.5,0.0,1.5,2027-02-01,2027-09-01
+IT-142,Transaction Processing Update,Operational Efficiency Program,17,1.5,1.0,2.0,2027-02-01,2027-10-01
