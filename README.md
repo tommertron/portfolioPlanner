@@ -114,7 +114,7 @@ python3 portfolio_scheduler.py <portfolio_name>
 
 Example:
 ```bash
-python3 portfolio_scheduler.py ea-roadmap
+python3 portfolio_scheduler.py portfoliotester
 ```
 
 ## Portfolio Structure
