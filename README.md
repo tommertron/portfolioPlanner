@@ -2,6 +2,12 @@
 
 [![Run Tests](https://github.com/tommertron/portfolioPlanner/actions/workflows/tests.yml/badge.svg)](https://github.com/tommertron/portfolioPlanner/actions/workflows/tests.yml)
 
+## Try the Live Demo!
+
+**[portfolioplanner.tommertron.com](https://portfolioplanner.tommertron.com)** - Try it now without installing anything!
+
+---
+
 A resource-constrained project portfolio scheduler with an interactive web interface. Schedule projects based on resource availability, Work-In-Progress (WIP) limits, and KTLO (Keep The Lights On) constraints.
 
 ## Features
