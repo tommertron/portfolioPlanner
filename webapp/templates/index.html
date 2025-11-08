@@ -402,6 +402,11 @@
                     <i class="bi bi-file-earmark"></i> Files
                 </button>
             </li>
+            <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#help-tab">
+                    <i class="bi bi-question-circle"></i> Help
+                </button>
+            </li>
         </ul>
 
         <div class="tab-content mt-3">
@@ -574,6 +579,191 @@
                     <div class="card-body">
                         <div id="files-container">
                             <p class="text-muted">Select a portfolio to view files</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Help Tab -->
+            <div class="tab-pane fade" id="help-tab">
+                <div class="card">
+                    <div class="card-header"><i class="bi bi-question-circle"></i> Portfolio Planner Help</div>
+                    <div class="card-body">
+                        <div class="help-content">
+
+                            <h4>Welcome to Portfolio Planner</h4>
+                            <p class="lead">A resource-constrained project portfolio scheduler that helps teams plan and schedule projects based on resource availability, Work-In-Progress (WIP) limits, and operational constraints.</p>
+
+                            <hr class="my-4">
+
+                            <h5><i class="bi bi-book"></i> Quick Start Guide</h5>
+                            <ol>
+                                <li><strong>Select or Create a Portfolio:</strong> Use the dropdown at the top to select an existing portfolio or click "New Portfolio" to create one.</li>
+                                <li><strong>Add Projects:</strong> Go to the Projects tab to add your projects with effort estimates and priorities.</li>
+                                <li><strong>Configure Resources:</strong> In the Resources tab, define your team size and constraints.</li>
+                                <li><strong>Set Planning Parameters:</strong> Use the Settings tab to set your planning start date.</li>
+                                <li><strong>Run the Scheduler:</strong> Click "Run Portfolio Planning" to generate your schedule.</li>
+                                <li><strong>View Results:</strong> Check the Results tab to see the timeline and resource analysis.</li>
+                            </ol>
+
+                            <hr class="my-4">
+
+                            <h5><i class="bi bi-list-check"></i> Projects Tab</h5>
+                            <p>Manage your project portfolio:</p>
+                            <ul>
+                                <li><strong>Add Projects:</strong> Click the "+ Add Project" button to create new projects.</li>
+                                <li><strong>Project Fields:</strong>
+                                    <ul>
+                                        <li><strong>Name:</strong> Project identifier</li>
+                                        <li><strong>Priority:</strong> Lower number = higher priority (e.g., Priority 1 is scheduled before Priority 2)</li>
+                                        <li><strong>Program:</strong> Optional grouping for color-coding in timeline</li>
+                                        <li><strong>Effort Estimates:</strong> Person-months needed for each resource type (BA, PM, Developer, etc.)</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Edit/Delete:</strong> Use the action buttons on each row to modify or remove projects.</li>
+                                <li><strong>Save Changes:</strong> Click the "Save" button after making changes.</li>
+                            </ul>
+
+                            <hr class="my-4">
+
+                            <h5><i class="bi bi-people"></i> Resources Tab</h5>
+                            <p>Configure your team capacity and constraints:</p>
+                            <ul>
+                                <li><strong>Resource Types:</strong> Define different roles (BA, PM, Developer, QA, etc.)</li>
+                                <li><strong>Team Size:</strong> Number of people for each resource type</li>
+                                <li><strong>KTLO % (Keep The Lights On):</strong> Percentage of time spent on operational work like meetings, support, and maintenance. For example, 20% KTLO means only 80% of time is available for project work.</li>
+                                <li><strong>WIP Limit (Work In Progress):</strong> Maximum number of concurrent projects per person. For example, WIP=2 means each person works on at most 2 projects simultaneously.</li>
+                            </ul>
+
+                            <hr class="my-4">
+
+                            <h5><i class="bi bi-gear"></i> Settings Tab</h5>
+                            <p>Configure planning parameters:</p>
+                            <ul>
+                                <li><strong>Planning Start Date:</strong> When to begin scheduling projects</li>
+                                <li><strong>Recent Jobs:</strong> View history of planning runs with status and timestamps</li>
+                                <li><strong>Run Planning:</strong> Execute the scheduler to generate project timelines</li>
+                            </ul>
+
+                            <hr class="my-4">
+
+                            <h5><i class="bi bi-graph-up"></i> Results Tab</h5>
+                            <p>View and analyze your portfolio schedule:</p>
+
+                            <h6>Timeline Subtab</h6>
+                            <ul>
+                                <li><strong>Interactive Gantt Chart:</strong> Visual timeline showing when each project is scheduled</li>
+                                <li><strong>Color Coding:</strong> Projects are colored by program for easy identification</li>
+                                <li><strong>Sort Options:</strong> Sort by program or start date</li>
+                                <li><strong>Drag-to-Adjust Editing:</strong>
+                                    <ul>
+                                        <li>Click "Enable Edit Mode" to manually adjust project dates</li>
+                                        <li><strong>Drag the bar:</strong> Move the entire project to a new date</li>
+                                        <li><strong>Drag left edge:</strong> Adjust the start date</li>
+                                        <li><strong>Drag right edge:</strong> Adjust the end date</li>
+                                        <li>Edited projects are highlighted in yellow</li>
+                                        <li>Click "Save Changes" to persist your adjustments</li>
+                                    </ul>
+                                </li>
+                                <li><strong>Export Options:</strong>
+                                    <ul>
+                                        <li><strong>PNG:</strong> Export timeline as an image</li>
+                                        <li><strong>CSV:</strong> Download project schedule data</li>
+                                    </ul>
+                                </li>
+                            </ul>
+
+                            <h6>Resource Analysis Subtab</h6>
+                            <ul>
+                                <li><strong>Bottleneck Analysis:</strong> Identifies which resource types are constraining your portfolio</li>
+                                <li><strong>Utilization Report:</strong> Shows how resources are being used over time</li>
+                                <li><strong>Export Markdown:</strong> Download the analysis report</li>
+                            </ul>
+
+                            <hr class="my-4">
+
+                            <h5><i class="bi bi-file-earmark"></i> Files Tab</h5>
+                            <p>Access portfolio data files:</p>
+                            <ul>
+                                <li><strong>Input Files:</strong> projects.csv, resources.json, config.json, programs.csv</li>
+                                <li><strong>Output Files:</strong> Scheduled projects and bottleneck analysis reports</li>
+                                <li><strong>Download:</strong> Click file names to download for external use</li>
+                            </ul>
+
+                            <hr class="my-4">
+
+                            <h5><i class="bi bi-lightbulb"></i> Key Concepts</h5>
+                            <dl class="row">
+                                <dt class="col-sm-3">Priority</dt>
+                                <dd class="col-sm-9">Lower numbers = higher priority. The scheduler assigns resources to high-priority projects first.</dd>
+
+                                <dt class="col-sm-3">WIP Limit</dt>
+                                <dd class="col-sm-9">Work In Progress limit controls how many projects a person can work on simultaneously. Lower WIP limits reduce multitasking but may increase overall timeline.</dd>
+
+                                <dt class="col-sm-3">KTLO</dt>
+                                <dd class="col-sm-9">Keep The Lights On - the percentage of time spent on non-project work (meetings, support, maintenance). This reduces available capacity for project work.</dd>
+
+                                <dt class="col-sm-3">Person-Months</dt>
+                                <dd class="col-sm-9">Effort estimate unit. For example, 2.0 Developer PM means 2 months of one developer's full-time work.</dd>
+
+                                <dt class="col-sm-3">Resource Type</dt>
+                                <dd class="col-sm-9">Different roles needed for projects (Business Analyst, Project Manager, Developer, QA, etc.). Each has its own capacity and WIP limits.</dd>
+
+                                <dt class="col-sm-3">Program</dt>
+                                <dd class="col-sm-9">A grouping of related projects. Programs are used for color-coding in the timeline view.</dd>
+                            </dl>
+
+                            <hr class="my-4">
+
+                            <h5><i class="bi bi-workflow"></i> Typical Workflow</h5>
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <ol class="mb-0">
+                                        <li>Create a new portfolio or select an existing one</li>
+                                        <li>Add all projects with effort estimates and priorities</li>
+                                        <li>Configure team resources, KTLO%, and WIP limits</li>
+                                        <li>Set the planning start date</li>
+                                        <li>Run the portfolio planner</li>
+                                        <li>Review the timeline and resource analysis</li>
+                                        <li>Optionally adjust dates using drag-to-edit mode</li>
+                                        <li>Export results (PNG, CSV, or Markdown)</li>
+                                    </ol>
+                                </div>
+                            </div>
+
+                            <hr class="my-4">
+
+                            <h5><i class="bi bi-info-circle"></i> Tips & Best Practices</h5>
+                            <ul>
+                                <li><strong>Start with realistic estimates:</strong> Use historical data when possible for effort estimates.</li>
+                                <li><strong>Set appropriate WIP limits:</strong> Lower limits (1-2) reduce context switching but may extend timelines.</li>
+                                <li><strong>Account for KTLO time:</strong> Most teams spend 15-30% on operational activities.</li>
+                                <li><strong>Use priorities effectively:</strong> Ensure critical projects have lower priority numbers.</li>
+                                <li><strong>Review bottlenecks:</strong> The resource analysis helps identify which skills are constraining your portfolio.</li>
+                                <li><strong>Save frequently:</strong> Changes are only persisted when you click the Save button.</li>
+                                <li><strong>Check job history:</strong> If a planning run fails, check the Settings tab for error details.</li>
+                            </ul>
+
+                            <hr class="my-4">
+
+                            <h5><i class="bi bi-exclamation-triangle"></i> Troubleshooting</h5>
+                            <dl class="row">
+                                <dt class="col-sm-4">Portfolio not loading?</dt>
+                                <dd class="col-sm-8">Check that all required files exist (projects.csv, resources.json, config.json) in the Files tab.</dd>
+
+                                <dt class="col-sm-4">Planning job failed?</dt>
+                                <dd class="col-sm-8">Review the Recent Jobs list in Settings tab for error messages. Common issues include missing data or invalid resource configurations.</dd>
+
+                                <dt class="col-sm-4">Changes not saving?</dt>
+                                <dd class="col-sm-8">Make sure you click the "Save" button after editing. Look for the green success message.</dd>
+
+                                <dt class="col-sm-4">Drag-to-edit not working?</dt>
+                                <dd class="col-sm-8">Ensure "Enable Edit Mode" is toggled on. The edit toggle is located above the timeline.</dd>
+
+                                <dt class="col-sm-4">Timeline looks wrong?</dt>
+                                <dd class="col-sm-8">Run the planner again to regenerate the schedule. If you've manually edited dates, they may conflict with resource constraints.</dd>
+                            </dl>
+
                         </div>
                     </div>
                 </div>
